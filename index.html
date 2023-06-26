@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tower Defense Game</title>
+    <style>
+        #game-board {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background-color: #ddd;
+        }
+
+        .tower {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f00;
+        }
+
+        .enemy {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #00f;
+        }
+
+        .castle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background-color: #999;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Tower Defense Game</h1>
+    <div id="game-board"></div>
+    <script>
+        // Define the game board
+        const gameBoard = document.getElementById('game-board');
+
+        // Define the tower, enemy, and castle classes
+        class Tower {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            render() {
+                const towerElement = document.createElement('div');
+                towerElement.className = 'tower';
+                towerElement.style.left = `${this.x}px`;
+                towerElement.style.top = `${this.y}px`;
+                gameBoard.appendChild(towerElement);
+            }
+        }
+
+        class Enemy {
+            constructor(x, y, speed) {
+                this.x = x;
+                this.y = y;
+                this.speed = speed;
+            }
+
+            updatePosition() {
+                this.x += this.speed;
+            }
+
+            render() {
+                const enemyElement = document.createElement('div');
+                enemyElement.className = 'enemy';
+                enemyElement.style.left = `${this.x}px`;
+                enemyElement.style.top = `${this.y}px`;
+                gameBoard.appendChild(enemyElement);
+            }
+        }
+
+        class Castle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            render() {
+                const castleElement = document.createElement('div');
+                castleElement.className = 'castle';
+                castleElement.style.left = `${this.x}px`;
+                castleElement.style.top = `${this.y}px`;
+                gameBoard.appendChild(castleElement);
+            }
+        }
+
+        // Create towers
+        const tower1 = new Tower(100, 100);
+        tower1.render();
+
+        const tower2 = new Tower(200, 200);
+        tower2.render();
+
+        // Create enemies
+        const enemies = [];
+
+        function createEnemy(x, y, speed) {
+            const enemy = new Enemy(x, y, speed);
+            enemies.push(enemy);
+            enemy.render();
+        }
+
+        createEnemy(0, 50, 1);
+        createEnemy(0, 150, 2);
+
+        // Create the castle
+        const castle = new Castle(gameBoard.offsetWidth - 60, 0);
+        castle.render();
+
+        // Game loop
+        function gameLoop() {
+            // Clear the game board
+            gameBoard.innerHTML = '';
+
+            // Update and render towers
+            tower1.render();
+            tower2.render();
+
+            // Update and render enemies
+            for (let i = 0; i < enemies.length; i++) {
+                const enemy = enemies[i];
+                enemy.updatePosition();
+                enemy.render();
+
+                // Check if enemy has reached the castle
+                if (enemy.x >= castle.x && enemy.y >= castle.y && enemy.y <= castle.y + 60) {
+                    // Game over condition - enemy reached the castle
+                    alert('Game Over');
+                    enemies.splice(i, 1); // Remove the enemy from the array
+                    i--; // Decrement the loop counter to account for the removed enemy
+                } else if (enemy.x >= gameBoard.offsetWidth) {
+                    // Enemy reached the right border without reaching the castle
+                    enemies.splice(i, 1); // Remove the enemy from the array
+                    i--; // Decrement the loop counter to account for the removed enemy
+                    createEnemy(0, enemy.y, enemy.speed); // Create a new enemy
+                }
+            }
+
+            // Repeat the game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+
+</html>
